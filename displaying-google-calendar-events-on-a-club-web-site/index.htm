@@ -1,0 +1,39 @@
+﻿<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>Google Calendar Demo</title>
+<link href="css/style.css" rel="stylesheet" type="text/css"
+	media="screen, print">
+<script src="js/jquery-2.1.1.js" type="text/javascript"></script>
+<script src="js/jquery.wicked-text.js" type="text/javascript"></script>
+<script src="js/page-events.js" type="text/javascript"></script>
+
+</head>
+<body>
+	<div>
+		<h2 class="entry-title">Google Calendar Demo</h2>
+		<div class="entry">
+			<p>This page extracts the relevant parts of the Thistle Society events page to display the events list in a &lt;div/&gt; below.  
+			Refer to the original article, <a href="http://www.kajabity.com/2011/10/displaying-google-calendar-events-on-a-club-web-site/" title="Displaying Google Calendar Events on a Club Web Site">Displaying Google Calendar Events on a Club Web Site</a> for more explanations.	  
+			</p>
+			<p>
+			The JavaScript retrieves 
+			the events from Google Calendar indirectly using a call to <code>events-feed.php</code>.  It
+			then extracts the event details and formats them as you (should) see below - picking out the date details and grouping by month.
+			</p>
+			<p>
+			The raw text description of the event is processed using Wiked Text (or Wiki Text till I get time to finish the rename).  See <a href="http://www.kajabity.com/jquery-wikitext/" title="Wiki Text (Wicked Text)">http://www.kajabity.com/jquery-wikitext/</a> for more details.
+			</p>
+			<p>
+				You can also view these events on <a
+					title="Thistle Society Google Calendar"
+					href="https://www.google.com/calendar/embed?src=calendar%40thistlesociety.org.uk&amp;ctz=europe/london"
+					target="_blank">Google Calendar</a> (opens in a new window).
+			</p>
+		</div>
+	</div>
+	<div id="entries">loading...</div>
+</body>
+</html>
