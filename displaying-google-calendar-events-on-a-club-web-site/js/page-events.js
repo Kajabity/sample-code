@@ -69,7 +69,7 @@
 		// alert( "ts_parseDate: dateString = " + dateString );
 		if (dateString != null) {
 			var m = dateString
-					.match(/^(\d{4})-(\d{2})-(\d{2})(T(\d{2}):(\d{2}):(\d{2})\.?(\d{3})([\d+Z:]*))?$/);
+					.match(/^(\d{4})-(\d{2})-(\d{2})(T(\d{2}):(\d{2}):(\d{2})\.?(\d{3})([\d+-Z:]*))?$/);
 			{
 				if (m.length == 10) {
 					if (!ts_isEmpty(m[9])) {
@@ -176,20 +176,24 @@
 	function handleEvent() {
 		var eventTitle = jQuery(this).find("title").text();
 
+
+		// Find last when element in case "originalEvent" element present.
+		var whenElement = $( nsgd + "when:last", this );
+		
 		// Need to work out how to handle the namespaces on some
-		// elements.
-		var startDateElement = jQuery(this).find(nsgd + "when");
-		if (startDateElement.length == 0) {
+		// elements.  If not found, then try a different way of handling namespaces.
+		if( whenElement.length == 0 )
+		{
 			// Some browsers ignore the namespace.
 			nsgd = "";
-			startDateElement = jQuery(this).find(nsgd + "when");
+			whenElement = $( nsgd + "when:last", this );
 		}
 
-		var startDateStr = startDateElement.attr("startTime");
+		var startDateStr = whenElement.attr( "startTime" );
 		var allDay = (startDateStr && startDateStr.length == 10);
-		var startDate = ts_parseDate(startDateStr);
-		var endDate = ts_parseDate(jQuery(this).find(nsgd + "when").attr(
-				"endTime"));
+		var startDate = ts_parseDate( startDateStr );
+		var endDateStr = whenElement.attr( "endTime" );
+		var endDate = ts_parseDate( endDateStr );
 
 		var eventColor = jQuery(this).find(nsgd + "color").text();
 
