@@ -1,7 +1,7 @@
 <?php 
 // This is the Public calendar feed address with the extra parameters.
-$calendarURL = "http://www.google.com/calendar/feeds/calendar@thistlesociety.org.uk/public" .
-	"/full?singleevents=true&futureevents=true&orderby=starttime&sortorder=ascending";   
+$calendarURL = "http://www.google.com/calendar/feeds/calendar@thistlesociety.org.uk/public/basic" .
+	"?singleevents=true&futureevents=true&orderby=starttime&sortorder=ascending";
 
 // Initialise a cURL instance with the calendar URL. 
 $ch = curl_init(); 

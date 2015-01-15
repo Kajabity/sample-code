@@ -176,24 +176,23 @@
 	function handleEvent() {
 		var eventTitle = jQuery(this).find("title").text();
 
-
 		// Find last when element in case "originalEvent" element present.
-		var whenElement = $( nsgd + "when:last", this );
-		
+		var whenElement = $(nsgd + "when:last", this);
+
 		// Need to work out how to handle the namespaces on some
-		// elements.  If not found, then try a different way of handling namespaces.
-		if( whenElement.length == 0 )
-		{
+		// elements. If not found, then try a different way of handling
+		// namespaces.
+		if (whenElement.length == 0) {
 			// Some browsers ignore the namespace.
 			nsgd = "";
-			whenElement = $( nsgd + "when:last", this );
+			whenElement = $(nsgd + "when:last", this);
 		}
 
-		var startDateStr = whenElement.attr( "startTime" );
+		var startDateStr = whenElement.attr("startTime");
 		var allDay = (startDateStr && startDateStr.length == 10);
-		var startDate = ts_parseDate( startDateStr );
-		var endDateStr = whenElement.attr( "endTime" );
-		var endDate = ts_parseDate( endDateStr );
+		var startDate = ts_parseDate(startDateStr);
+		var endDateStr = whenElement.attr("endTime");
+		var endDate = ts_parseDate(endDateStr);
 
 		var eventColor = jQuery(this).find(nsgd + "color").text();
 
@@ -260,7 +259,7 @@
 	 * @param xml -
 	 *            the XML content of the calendar feed.
 	 */
-	function handleCalendar(xml) {
+	function handleCalendar(xml, textStatus, jqXHR) {
 		// Parse the feed into a tree of JS objects.
 		var feed = jQuery("feed", xml);
 
@@ -280,7 +279,8 @@
 
 	jQuery.ajax({
 		type : "GET",
-		url : "/events-feed.php",
+		url : "events-feed.php",
+		contentType : 'text/xml',
 		dataType : "xml",
 		error : handleError,
 		success : handleCalendar
