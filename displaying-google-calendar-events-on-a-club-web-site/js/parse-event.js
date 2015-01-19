@@ -31,9 +31,13 @@ function CalendarEvent(event) {
 		// alert( this.eventDescription );
 
 		/**
-		 * Here's what the "/basic" description looks like. When: Mon 19 Jan
-		 * 2015 19:00 to 22:15 GMT<br />
+		 * Here's what the "/basic" description looks like to help understand the regular expressions. 
 		 * 
+		 * When: Mon 19 Jan 2015 19:00 to 22:15 GMT<br />
+		 * Local
+		 * "When: Fri 30 Jan 2015<br />↵↵<br />Where: St. Teresa’s Catholic Church Hall, College Road, Upholland, Wigan. WN8 OPY↵<br />Event Status: confirmed↵<br />"
+		 * Live
+		 * "When: Fri Jan 30, 2015<br />↵↵<br />Where: St. Teresa’s Catholic Church Hall, College Road, Upholland, Wigan. WN8 OPY↵<br />Event Status: confirmed↵<br />"
 		 * <br />
 		 * Where: St. Teresa’s Catholic Church Hall, College Road, Upholland,
 		 * Wigan. WN8 OPY <br />
@@ -41,14 +45,11 @@ function CalendarEvent(event) {
 		 * Event Description: * Tuition : 7pm-8pm (Children with parents
 		 * welcome) * General : 8pm – 10.15pm
 		 */
-		var re_When = /When:\s+((\w+\s+\d+\s+\w+\s+\d+)(\s+\d+:\d+)?)(\s+to\s+((\w+\s+\d+\s+\w+\s+\d+)?(\d+:\d+)?)([\n\s]+(\w+))?)?/;
-		var re_Where = /<br \/>Where:\s+(.+)\n/;
-		var re_Status = /<br \/>Event Status:\s+(.+)\n/;
-		var re_Description = /Event Description:/;
 		var matches;
 
 		// Find the start of the description and extract it - leaving the other
 		// bits behind..
+		var re_Description = /Event Description:/;
 		if ((matches = content.match(re_Description)) !== null) {
 			this.eventDescription = content.substring(matches.index
 					+ matches[0].length);
@@ -58,34 +59,45 @@ function CalendarEvent(event) {
 		}
 
 		// Find and extract the "When" string.
+		var re_When = /When:\s+((\w+\s+(\w+\s+\d+,|\d+\s+\w+)\s+\d+)(\s+\d+:\d+)?)(\s+to\s+((\w+\s+(\w+\s+\d+,|\d+\s+\w+)\s+\d+)?(\d+:\d+)?)([\n\s]+(\w+))?)?/;
 		if ((matches = content.match(re_When)) !== null) {
 			// 0 all matched
 			// 1 start date time
 			// 2 start date
-			// 3 start time
-			// 4 "to" section
-			// 5 end date time
-			// 6 end date
-			// 7 end time
-			// 8 "GMT" string
-			// 9 GMT
+			// 3 start date variant
+			// 4 start time
+			// 5 "to" section
+			// 6 end date time
+			// 7 end date
+			// 8 end date variant
+			// 9 end time
+			//10 "GMT" string
+			//11 GMT
+			var indexStartDT = 1;
+			var indexStartD = 2;
+			var indexStartT = 4;
+			var indexEndDT = 6;
+			var indexEndD = 8;
+			var indexEndT = 9;
+			var indexZone = 11;
+
 			var zoneStr = "";
-			if (matches[9]) {
+			if (matches[indexZone]) {
 				// Going to leave off the zone as "BST" breaks it and if you
 				// actually set it to "+0100" it gives the wrong time!
 
-				// zoneStr = " " + matches[9];
+				// zoneStr = " " + matches[indexZone];
 			}
 
-			var whenStr = matches[1] + " " + zoneStr;
-			this.allDay = !matches[3];
+			var whenStr = matches[indexStartDT] + " " + zoneStr;
+			this.allDay = !matches[indexStartT];
 			this.startDate = new Date(whenStr);
 
-			if (matches[5]) {
-				var endDateStr = matches[5] + " " + zoneStr;
+			if (matches[indexEndDT]) {
+				var endDateStr = matches[indexEndDT] + " " + zoneStr;
 
-				if (!matches[6]) {
-					endDateStr = matches[2] + " " + endDateStr;
+				if (!matches[indexEndD]) {
+					endDateStr = matches[indexStartD] + " " + endDateStr;
 				}
 
 				this.endDate = new Date(endDateStr);
@@ -98,11 +110,13 @@ function CalendarEvent(event) {
 		}
 
 		// Find and extract the "Where" string.
+		var re_Where = /<br\s+\/>Where:\s+(.+)[\s\n]+/;
 		if ((matches = content.match(re_Where)) !== null) {
 			this.eventLocation = matches[1];
 		}
 
 		// Find and extract the "Status" string.
+		var re_Status = /<br \/>Event Status:\s+(.+)\n/;
 		if ((matches = content.match(re_Status)) !== null) {
 			// Ignored...
 		}
@@ -117,8 +131,6 @@ function CalendarEvent(event) {
 		var endDateStr = whenElement.attr("endTime");
 		this.endDate = parseDate(endDateStr);
 
-		this.eventColor = $(event).find(CalendarEvent.nsgd + "color").text();
-
 		// Fix extra day issue.
 		if (allDay && endDate != null) {
 			endDate.setDate(endDate.getDate() - 1);
@@ -130,6 +142,8 @@ function CalendarEvent(event) {
 			this.eventLocation = eventWhere.attr("valueString");
 		}
 	}
+
+	this.eventColor = $(event).find(CalendarEvent.nsgd + "color").text();
 }
 
 /**
@@ -146,58 +160,4 @@ CalendarEvent.nsgd = "gd\\:";
  */
 CalendarEvent.isEmpty = function(text) {
 	return text == null || text.length == 0;
-};
-
-/**
- * Remove a section from a string.
- * 
- * @param text
- *            the string to have a section removed from.
- * @param start
- *            zero based index where the removed section starts.
- * @param length
- *            length of string to remove.
- * @return the modified section.
- */
-CalendarEvent.removeSection = function(text, start, length) {
-	if (text.length < start) {
-		return text;
-	}
-
-	if (text.length < start + length) {
-		return text.substring(0, start);
-	}
-
-	return text.substring(0, start) + text.substring(start + length);
-};
-
-/**
- * Parse the date and time from an XML date string: e.g.
- * "2010-10-21T23:26:14.000Z".
- * 
- * @param dateString
- *            date to parse.
- * @return Date object or null.
- */
-CalendarEvent.parseDate = function(dateString) {
-	var d = null;
-	// alert( "ts_parseDate: dateString = " + dateString );
-	if (dateString != null) {
-		var m = dateString
-				.match(/^(\d{4})-(\d{2})-(\d{2})(T(\d{2}):(\d{2}):(\d{2})\.?(\d{3})([\d+Z:]*))?$/);
-		{
-			if (m.length == 10) {
-				if (!isEmpty(m[9])) {
-					d = new Date(m[1], (m[2] - 1), m[3], m[5], m[6], m[7], m[8]);
-					// alert( "ts_parseDate: d = " + d );
-				} else if (!isEmpty(m[3])) {
-					d = new Date(m[1], (m[2] - 1), m[3]);
-					// alert( "ts_parseDate: d = " + d );
-				}
-			}
-		}
-	}
-
-	// alert( "ts_parseDate: d final = " + d );
-	return d;
 };
