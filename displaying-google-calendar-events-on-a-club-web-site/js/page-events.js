@@ -46,49 +46,6 @@
 			"December");
 
 	/**
-	 * Test if a string is null or empty.
-	 * 
-	 * @param text
-	 *            the string to check for emptiness
-	 * @return true if the string is null or zero length (empty).
-	 */
-	function ts_isEmpty(text) {
-		return text == null || text.length == 0;
-	}
-
-	/**
-	 * Parse the date and time from an XML date string: e.g.
-	 * "2010-10-21T23:26:14.000Z".
-	 * 
-	 * @param dateString
-	 *            date to parse.
-	 * @return Date object or null.
-	 */
-	function ts_parseDate(dateString) {
-		var d = null;
-		// alert( "ts_parseDate: dateString = " + dateString );
-		if (dateString != null) {
-			var m = dateString
-					.match(/^(\d{4})-(\d{2})-(\d{2})(T(\d{2}):(\d{2}):(\d{2})\.?(\d{3})([\d+-Z:]*))?$/);
-			{
-				if (m.length == 10) {
-					if (!ts_isEmpty(m[9])) {
-						d = new Date(m[1], (m[2] - 1), m[3], m[5], m[6], m[7],
-								m[8]);
-						// alert( "ts_parseDate: d = " + d );
-					} else if (!ts_isEmpty(m[3])) {
-						d = new Date(m[1], (m[2] - 1), m[3]);
-						// alert( "ts_parseDate: d = " + d );
-					}
-				}
-			}
-		}
-
-		// alert( "ts_parseDate: d final = " + d );
-		return d;
-	}
-
-	/**
 	 * Parse an XML format date (YYYY-MM-DD...) and format for display on home
 	 * page event list.
 	 * 
@@ -168,48 +125,13 @@
 	// Entries are grouped by Month in the display.
 	var lastMonth = '';
 
-	var nsgd = "gd\\:";
-
 	/**
 	 * Handle an individual event.
 	 */
 	function handleEvent() {
-		var eventTitle = jQuery(this).find("title").text();
+		var event = new CalendarEvent(this);
 
-		// Find last when element in case "originalEvent" element present.
-		var whenElement = $(nsgd + "when:last", this);
-
-		// Need to work out how to handle the namespaces on some
-		// elements. If not found, then try a different way of handling
-		// namespaces.
-		if (whenElement.length == 0) {
-			// Some browsers ignore the namespace.
-			nsgd = "";
-			whenElement = $(nsgd + "when:last", this);
-		}
-
-		var startDateStr = whenElement.attr("startTime");
-		var allDay = (startDateStr && startDateStr.length == 10);
-		var startDate = ts_parseDate(startDateStr);
-		var endDateStr = whenElement.attr("endTime");
-		var endDate = ts_parseDate(endDateStr);
-
-		var eventColor = jQuery(this).find(nsgd + "color").text();
-
-		// Fix extra day issue.
-		if (allDay && endDate != null) {
-			endDate.setDate(endDate.getDate() - 1);
-		}
-
-		var eventLocation = '';
-		var eventWhere = jQuery(this).find(nsgd + "where");
-		if (eventWhere !== undefined) {
-			eventLocation = eventWhere.attr("valueString");
-		}
-
-		var eventDescription = jQuery(this).find("content").text();
-
-		var thisMonth = ts_formatMonth(startDate);
+		var thisMonth = ts_formatMonth(event.startDate);
 		if (thisMonth != lastMonth) {
 			if (lastMonth != '') {
 				htmlEntries += '</table>';
@@ -222,34 +144,34 @@
 			lastMonth = thisMonth;
 		}
 
-		var sDay = ts_formatMonthDay(startDate);
+		var sDay = ts_formatMonthDay(event.startDate);
 		htmlEntries += '<tr><td class="events" width="30%"><strong>' + sDay;
-		var eDay = ts_formatMonthDay(endDate);
-		if (endDate != null && sDay != eDay) {
+		var eDay = ts_formatMonthDay(event.endDate);
+		if (event.endDate != null && sDay != eDay) {
 			htmlEntries += ' - ' + eDay;
 		}
 		htmlEntries += '</strong>';
 
-		if (!allDay) {
-			htmlEntries += '<br>' + ts_formatTime(startDate);
+		if (!event.allDay) {
+			htmlEntries += '<br>' + ts_formatTime(event.startDate);
 
-			if (ts_formatTime(startDate) != ts_formatTime(endDate)) {
-				htmlEntries += ' - ' + ts_formatTime(endDate);
+			if (ts_formatTime(event.startDate) != ts_formatTime(event.endDate)) {
+				htmlEntries += ' - ' + ts_formatTime(event.endDate);
 			}
 		}
 
 		htmlEntries += '</td>';
 		htmlEntries += '<td class="events">';
-		htmlEntries += '<strong style="background-color: ' + eventColor + ';">'
-				+ eventTitle + '</strong><br/>';
+		htmlEntries += '<strong style="background-color: ' + event.eventColor + ';">'
+				+ event.eventTitle + '</strong><br/>';
 
-		if (eventLocation != null && eventLocation.length > 0) {
+		if (event.eventLocation != null && event.eventLocation.length > 0) {
 			htmlEntries += '<em><a href="http://maps.google.com/?q='
-					+ eventLocation + '" target="_blank">' + eventLocation
+					+ event.eventLocation + '" target="_blank">' + event.eventLocation
 					+ '</a></em><br>';
 		}
 
-		htmlEntries += '<p>' + jQuery.wickedText(eventDescription) + '</p>';
+		htmlEntries += '<p>' + jQuery.wickedText(event.eventDescription) + '</p>';
 		htmlEntries += '</td></tr><tr><td colspan="2"><hr color="silver"></td></tr>';
 	}
 

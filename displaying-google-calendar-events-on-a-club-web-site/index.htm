@@ -8,23 +8,43 @@
 	media="screen, print">
 <script src="js/jquery-2.1.1.js" type="text/javascript"></script>
 <script src="js/jquery.wicked-text.js" type="text/javascript"></script>
+<script src="js/parse-event.js" type="text/javascript"></script>
 <script src="js/page-events.js" type="text/javascript"></script>
+<style type="text/css">
+#message {
+	border: thin solid red;
+	padding: 5px;
+	margin: 10px;
+}
+</style>
 
 </head>
 <body>
 	<div>
 		<h2 class="entry-title">Google Calendar Demo</h2>
 		<div class="entry">
-			<p>This page extracts the relevant parts of the Thistle Society events page to display the events list in a &lt;div/&gt; below.  
-			Refer to the original article, <a href="http://www.kajabity.com/2011/10/displaying-google-calendar-events-on-a-club-web-site/" title="Displaying Google Calendar Events on a Club Web Site">Displaying Google Calendar Events on a Club Web Site</a> for more explanations.	  
+			<p>
+				This page extracts the relevant parts of the Thistle Society events
+				page to display the events list in a &lt;div/&gt; below. Refer to
+				the original article, <a
+					href="http://www.kajabity.com/2011/10/displaying-google-calendar-events-on-a-club-web-site/"
+					title="Displaying Google Calendar Events on a Club Web Site">Displaying
+					Google Calendar Events on a Club Web Site</a> for more explanations.
 			</p>
 			<p>
-			The JavaScript retrieves 
-			the events from Google Calendar indirectly using a call to <code>events-feed.php</code>.  It
-			then extracts the event details and formats them as you (should) see below - picking out the date details and grouping by month.
+				The JavaScript retrieves the events from Google Calendar indirectly
+				using a call to
+				<code>events-feed.php</code>
+				. It then extracts the event details and formats them as you
+				(should) see below - picking out the date details and grouping by
+				month.
 			</p>
 			<p>
-			The raw text description of the event is processed using Wiked Text (or Wiki Text till I get time to finish the rename).  See <a href="http://www.kajabity.com/jquery-wikitext/" title="Wiki Text (Wicked Text)">http://www.kajabity.com/jquery-wikitext/</a> for more details.
+				The raw text description of the event is processed using Wiked Text
+				(or Wiki Text till I get time to finish the rename). See <a
+					href="http://www.kajabity.com/jquery-wikitext/"
+					title="Wiki Text (Wicked Text)">http://www.kajabity.com/jquery-wikitext/</a>
+				for more details.
 			</p>
 			<p>
 				You can also view these events on <a
@@ -32,9 +52,27 @@
 					href="https://www.google.com/calendar/embed?src=calendar%40thistlesociety.org.uk&amp;ctz=europe/london"
 					target="_blank">Google Calendar</a> (opens in a new window).
 			</p>
-			<p><strong>It's broken!  This sample used the Google V2 API, apparently... and they've deprecated it.  I've
-			changed it to use the "/basic" instead of "/full" view as this still works, but it's not perfect.  I'll work
-			on improving this version and then updating to version 3 API as soon as I can.</strong></p>
+			<div id="message">
+				<p>
+					It seems that Google deprecated the V2.0 API (<A
+						HREF="https://developers.google.com/google-apps/calendar/v2/developers_guide_protocol">Google
+						Calendar API v2 Developer's Guide: Protocol</A>) that this code relied
+					upon back in November 2014 – sadly, it took me a while to notice.
+				</p>
+				<p>Anyway, I’ve been having a play and found that the Basic API
+					still works – in fact, if you get a link to a calendar on its
+					Settings page that is what you are given. Unfortunately, that
+					doesn’t present the Event details I need in the same way – they are
+					mixed into the “Content” along with the event description.</p>
+				<p>
+					I’ve updated the code to separate out a
+					<tt>CalendarEvent</tt>
+					class (in
+					<tt>parse-event</tt>
+					.js which parses both the old v2.0 "/full" version and also handles
+					the simplified “/basic” response format.
+				</p>
+			</div>
 		</div>
 	</div>
 	<div id="entries">loading...</div>
